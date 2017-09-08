@@ -14,11 +14,19 @@ if(isset($_SESSION['error'])) {
 }
 
 $usuario = $_SESSION['usuario'];
-
+  $id = $_GET['id'];
 if(isset($_POST["titulo"]) && isset($_POST["texto"])){
-  // IMPLEMENTAR EDITAR AQUÍ
-	echo "Función no implementada";
-	die;
+  $titulo = $db->escape_string($_POST['titulo']);
+  $texto = $db->escape_string($_POST['texto']);
+  $result = $db->query("UPDATE `noticias` SET `titulo`='$titulo',`texto`='$titulo' WHERE id_noticia=$id");
+	  if(!$result) {
+    $_SESSION['error'] = $db->error;
+    header('Location: editar-noticia.php?id='.$id);
+  } else {
+    header('Location: welcome.php');
+  }
+
+  die;
 }
 
 ?>
@@ -31,6 +39,13 @@ if(isset($_POST["titulo"]) && isset($_POST["texto"])){
 	<link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 <body>
+<?php
+$result = $db->query("SELECT titulo, texto FROM noticias WHERE id_noticia=$id LIMIT 1");
+while($line = $result -> fetch_assoc()){
+$title = $line['titulo'];
+$text = $line['texto'];
+}
+ ?>
 	<div class="container">
     <div class="row justify-content-md-center mt-5">
       <div class="col-sm-8">
@@ -40,11 +55,11 @@ if(isset($_POST["titulo"]) && isset($_POST["texto"])){
             <form method="post">
               <div class="form-group">
                 <label for="titulo">Título</label>
-                <input type="text" name="titulo" class="form-control" id="titulo">
+                <input type="text" name="titulo" class="form-control" id="titulo" value="<?php echo $title ?>">
               </div>
               <div class="form-group">
                 <label for="texto">Contenido</label>
-                <textarea id="texto" name="texto" class="form-control" rows="5"></textarea>
+                <textarea id="texto" name="texto" class="form-control" rows="5"><?php echo $title ?></textarea>
               </div>
               <button type="submit" class="btn btn-primary">Agregar</button>
             </form>
@@ -60,3 +75,4 @@ if(isset($_POST["titulo"]) && isset($_POST["texto"])){
   </div>
 </body>
 </html>
+
